@@ -5,7 +5,7 @@ from torch.optim import Adam
 import numpy as np
 from typing import Tuple, List, Dict
 from models import Actor, QNet
-from ReplayBuffer import ReplayBuffer
+from replaybuffer import ReplayBuffer
 
 
 class SAC(nn.Module):
