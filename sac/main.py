@@ -10,7 +10,7 @@ import numpy as np
 from tqdm.notebook import tqdm
 import imageio
 from typing import Tuple, List, Dict
-from ReplayBuffer import ReplayBuffer
+from replaybuffer import ReplayBuffer
 from agent import SAC
 from training import train
 
