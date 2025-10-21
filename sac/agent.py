@@ -3,8 +3,10 @@ from torch import Tensor
 import torch.nn as nn
 from torch.optim import Adam
 import numpy as np
+from typing import Tuple, List, Dict
 from models import Actor, QNet
-from replaybuffer import ReplayBuffer
+from ReplayBuffer import ReplayBuffer
+
 
 class SAC(nn.Module):
   def __init__(self, obs_size: int, act_size: int, lr: float, gamma: float, tau: float, device: str):
