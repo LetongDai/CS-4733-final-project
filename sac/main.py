@@ -42,6 +42,8 @@ if __name__ == "__main__":
   n_envs = 4
   env_name = "FetchReach-v4"
   env = VecNormalize(make_vec_env(env_name, n_envs))
+  obs_size = 16
+  act_size = 4
   
   lr = 5e-4
   gamma = 0.99
