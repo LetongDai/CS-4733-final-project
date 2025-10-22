@@ -9,8 +9,11 @@ def train(model, env, buffer, episodes: int, max_steps: int,
           batch_size: int, update_steps: int, gamma: float, print_per_epi: int, device: str) -> None:
   scores = []
   losses = []
+  acc_success = 0
   for epi in tqdm(range(episodes)):
-    scores.append(model.rollout(env, max_steps, buffer))
+    score, success = model.rollout(env, max_steps, buffer)
+    scores.append(score)
+    acc_success += success
 
     Q1_losses = []
     Q2_losses = []
@@ -35,7 +38,9 @@ def train(model, env, buffer, episodes: int, max_steps: int,
         L_q1 += i["Q1_loss"]
         L_q2 += i["Q2_loss"]
         L_actor += i["actor_loss"]
-      print(f"mean score is {np.mean(scores)}")
+      # calculation of success rate can be improved
+      print(f"mean score is {np.mean(scores)}, success_rate is {acc_success / (50 * print_per_epi)}")
       print(f"Q1_loss is {L_q1 / n:.5f}, Q2_loss is {L_q2 / n:.5f}, actor_loss is {L_actor / n:.5f}")
       scores = []
       losses = []
+      acc_success = 0
