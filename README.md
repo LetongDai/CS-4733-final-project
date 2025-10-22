@@ -1,10 +1,10 @@
-Installation
+# Installation<br>
 
-create virtual env and install packages:
-$ cd sac
-$ python3 -m venv venv
-$ . venv/bin/activate
-$ pip install -r requirements.txt
+## Create virtual env and install packages:<br>
+$ cd sac<br>
+$ python3 -m venv venv<br>
+$ . venv/bin/activate<br>
+$ pip install -r requirements.txt<br>
 
-train and evaluate:
-$ python3 main.py
+## Train and evaluate:<br>
+$ python3 main.py<br>
