@@ -42,12 +42,14 @@ class SAC(nn.Module):
     state = env.reset()
     state = self.dict_to_vec(state)
     scores = None
+    success = 0
     for t in range(max_step):
       action, log_prob = self.actor.eval_state(state)
       next_state, reward, terminated, info = env.step(action.detach().numpy())
       next_state = self.dict_to_vec(next_state)
       termination = np.array([info_n['is_success'] for info_n in info])
       if any(terminated):
+        success += np.sum(termination)
         state = self.dict_to_vec(env.reset())
       termination_mask = torch.from_numpy(1 - termination)
       buffer.add_frame(state, next_state, action.detach(), torch.from_numpy(reward), termination_mask)
@@ -57,7 +59,7 @@ class SAC(nn.Module):
         scores = reward
       else:
         scores += reward
-    return scores.mean()
+    return scores.mean(), success
 
   def get_q(self, state: Tensor, action: Tensor) -> Tensor:
     q1 = self.Q1(state, action)
@@ -104,7 +106,7 @@ class SAC(nn.Module):
     self.step_optim(Q2_loss, "Q2", log_info)
 
     new_q = self.get_q(state, new_action)
-    actor_loss = (ent_coe * log_prob.unsqueeze(1) - new_q).mean()
+    actor_loss = (ent_coe * log_prob.unsqueeze(1) + new_q).mean()
     self.step_optim(actor_loss, "actor", log_info)
 
     self.polyak_average(self.Q1, self.critic1)
