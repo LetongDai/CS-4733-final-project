@@ -18,11 +18,11 @@ class ReplayBuffer:
     self.buffer.append((state, next_state, action, reward, mask))
 
   def random_sample(self, batch_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
-    states = torch.zeros(batch_size, self.n_envs, self.state_size, device=device)
-    next_states = torch.zeros(batch_size, self.n_envs, self.state_size, device=device)
-    actions = torch.zeros(batch_size, self.n_envs, self.act_size, device=device)
-    rewards = torch.zeros(batch_size, self.n_envs, device=device)
-    mask = torch.zeros(batch_size, self.n_envs, device=device)
+    states = torch.zeros(batch_size, self.n_envs, self.state_size, device=self.device)
+    next_states = torch.zeros(batch_size, self.n_envs, self.state_size, device=self.device)
+    actions = torch.zeros(batch_size, self.n_envs, self.act_size, device=self.device)
+    rewards = torch.zeros(batch_size, self.n_envs, device=self.device)
+    mask = torch.zeros(batch_size, self.n_envs, device=self.device)
     sample_tuple = (states, next_states, actions, rewards, mask)
 
     samples = np.random.randint(0, len(self.buffer), size=(batch_size,))
