@@ -23,13 +23,13 @@ def demo(model, eval_env) -> None:
   images = []
 
   state, _ = eval_env.reset()
-  dict_to_vec(state)
+  state = dict_to_vec(state).to(torch.float)
   images.append(eval_env.render())
   
   for i in range(50):
     action = model.actor.get_action(state)
-    state, reward, terminated, _ = eval_env.step(action)
-    state = dict_to_vec(state)
+    state, reward, terminated, truncated, _ = eval_env.step(action.detach().numpy())
+    state = dict_to_vec(state).to(torch.float)
     images.append(eval_env.render())
   
   imageio.mimsave("./result.gif", images)
