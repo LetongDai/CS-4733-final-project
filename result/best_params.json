@@ -1,0 +1,13 @@
+{
+  "lr": 0.00013323996838693897,
+  "gamma": 0.999,
+  "tau": 0.09870351286643798,
+  "batch_size": 64,
+  "update_steps": 50,
+  "n_episodes": 200,
+  "max_steps": 100,
+  "buffer_size": 100000,
+  "n_envs": 4,
+  "device": "cpu",
+  "seed": 42
+}
