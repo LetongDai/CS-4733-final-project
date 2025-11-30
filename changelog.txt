@@ -1,0 +1,10 @@
+1. fix the reward bug in rollout (use reward.copy() instead of reward itself)
+2. fix the incorrect tensor shape in the update method (unsqueeze of mask / reward / log_prob)
+3. fix the get_action of actor and add a new prediction mode (one bug of the previous version is not adding tanh to the final output)
+4. add HER and initial exploration
+5. put all Q value into get_q method and remove torch.no_grad() (this may or may not be a bug in the previous version)
+6. change names (e.g. alpha) and add more logs and add demos in training progress. Also fix success_rate calculation (divided by n_envs)
+7. change some hyperparameters
+8. Add transitions one by one, instead of adding n_envs trainsitions
+    (this is to reduce the coupling between transitions, not sure whether it has impact on the correctness)
+9. Stop rollout after receiving terminated or truncated signal. (This has impact on the correctness)

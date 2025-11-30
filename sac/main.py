@@ -1,63 +1,47 @@
+import random
+
 import gymnasium as gym
 import gymnasium_robotics
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import VecNormalize
 import torch
-from torch import Tensor
 import numpy as np
-import imageio
-from typing import Tuple, List, Dict
 from replaybuffer import ReplayBuffer
 from agent import SAC
-from training import train
-
-
-def dict_to_vec(state: Dict) -> Tensor:
-    return torch.from_numpy(np.concat([state['achieved_goal'], state['desired_goal'], state['observation']], axis=-1))
-
-
-def demo(model, eval_env) -> None:
-    images = []
-
-    state, _ = eval_env.reset()
-    state = dict_to_vec(state).to(torch.float)
-    images.append(eval_env.render())
-
-    for i in range(50):
-        action = model.actor.get_action(state)
-        state, reward, terminated, truncated, _ = eval_env.step(action.detach().numpy())
-        state = dict_to_vec(state).to(torch.float)
-        images.append(eval_env.render())
-
-    imageio.mimsave("./result.gif", images)
-
+from training import train, demo
 
 if __name__ == "__main__":
     device = "cpu"
     print_per_epi = 10
-    seed = 0
+    seed = 6
 
     n_envs = 4
     env_name = "FetchReach-v4"
-    env = VecNormalize(make_vec_env(env_name, n_envs, seed=seed))
+    max_steps = 50
+    env = make_vec_env(env_name, n_envs, seed=seed, env_kwargs={"max_episode_steps": max_steps})
     eval_env = gym.make(env_name, render_mode="rgb_array")
-    obs_size = 16
-    act_size = 4
+    state, _ = eval_env.reset()
+    obs_size = state["observation"].shape[0] + state["desired_goal"].shape[0]
+    act_size = eval_env.action_space.shape[0]
 
     lr = 3e-4
-    gamma = 0.99
-    tau = 0.05
+    gamma = 0.98
+    tau = 0.005
     n_episodes = 200
-    max_steps = 100
-    buffer_size = int(1e5)
-    update_steps = 50
-    batch_size = 16
+    buffer_size = int(1e6)
+    update_steps = 30 * n_envs
+    batch_size = 256
+    initial_explore = 10
 
     if seed:
         torch.manual_seed(seed)
         np.random.seed(seed)
+        random.seed(seed)
 
-    model = SAC(obs_size, act_size, lr, lr, lr, gamma, tau, device)
-    buffer = ReplayBuffer(buffer_size, n_envs, obs_size, act_size, device)
-    train(model, env, buffer, n_episodes, max_steps, batch_size, update_steps, gamma, print_per_epi, device)
-    demo(model, eval_env)
+    model = SAC(obs_size, act_size, lr, gamma=gamma, tau=tau, device=device)
+    buffer = ReplayBuffer(buffer_size, obs_size, act_size, device)
+    train(model, env, buffer,
+          n_episodes, max_steps, batch_size, update_steps,
+          print_per_epi, device=device, eval_env=eval_env, initial_explore=initial_explore, show_demo_log=False)
+    for i in range(10):
+        demo(model, eval_env, steps=max_steps, name=f"./result{i}.gif")
